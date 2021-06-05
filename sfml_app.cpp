@@ -102,7 +102,60 @@ void drawSelectedPiece(RenderWindow& window) {
 }
 
 void findAvailableMoves() {
+    avaiableMoves.clear();
+    if (selectedPiece.first == -1 || board[selectedPiece.first][selectedPiece.second] == 0) {
+        return;
+    }
+    int piece = abs(board[selectedPiece.first][selectedPiece.second]);
+    bool isWhite = board[selectedPiece.first][selectedPiece.second] > 0;
+    switch (piece) {
+    case PAWN:
+        if (isWhite) {
+            if (selectedPiece.first != 0 && board[selectedPiece.first - 1][selectedPiece.second] == 0)
+                avaiableMoves.push_back({ selectedPiece.first - 1 , selectedPiece.second });
+            if (selectedPiece.first == 6 && !avaiableMoves.empty() && board[selectedPiece.first - 2][selectedPiece.second] == 0) // havent moved
+                avaiableMoves.push_back({ selectedPiece.first - 2 , selectedPiece.second });
+            // taking pieces
+            
+            if (selectedPiece.first != 0)
+                if(selectedPiece.second-1 >=0 && board[selectedPiece.first - 1][selectedPiece.second-1] < 0)   //left side
+                    avaiableMoves.push_back({ selectedPiece.first - 1 , selectedPiece.second-1 });
+                else if(selectedPiece.second + 1 < 8 && board[selectedPiece.first - 1][selectedPiece.second + 1] < 0) // right side
+                    avaiableMoves.push_back({ selectedPiece.first - 1 , selectedPiece.second + 1 });
+            // queening and en passent  sometime later
+        }
+        else {
+            if (selectedPiece.first != 7 && board[selectedPiece.first + 1][selectedPiece.second] == 0)
+                avaiableMoves.push_back({ selectedPiece.first + 1 , selectedPiece.second });
+            if (selectedPiece.first == 1 && !avaiableMoves.empty() && board[selectedPiece.first +2][selectedPiece.second] == 0) // havent moved
+                avaiableMoves.push_back({ selectedPiece.first + 2 , selectedPiece.second });
+            // taking pieces
 
+            if (selectedPiece.first != 7)
+                if (selectedPiece.second - 1 >= 0 && board[selectedPiece.first + 1][selectedPiece.second - 1] > 0)   //left side
+                    avaiableMoves.push_back({ selectedPiece.first + 1 , selectedPiece.second - 1 });
+                else if (selectedPiece.second + 1 < 8 && board[selectedPiece.first + 1][selectedPiece.second + 1] > 0) // right side
+                    avaiableMoves.push_back({ selectedPiece.first + 1 , selectedPiece.second + 1 });
+        }
+        break;
+    case KNIGHT:
+
+        break;
+    case BISHOP:
+
+        break;
+    case ROOK:
+
+        break;
+    case QUEEN:
+
+        break;
+    case KING:
+
+        break;
+    }
+    if (!avaiableMoves.empty())
+        std::cout << avaiableMoves.size() << " Moves Found! \n";
 }
 int main()
 {
@@ -124,6 +177,7 @@ int main()
                 //std::cout  << char('a' + (localPosition.x / size)) << " "<<(8-(localPosition.y /size)) << std::endl;
                 selectedPiece = { localPosition.y / size , localPosition.x / size };
                 std::cout << board[localPosition.y / size ][localPosition.x / size] << std::endl;
+                findAvailableMoves();
             }
 
         }
