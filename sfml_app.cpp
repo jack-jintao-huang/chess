@@ -7,20 +7,23 @@ using namespace sf;
 int size = 60;
 std::string position = "";
 
+std::pair<int, int> selectedPiece = { -1, -1 };
 // board initual layout
 int board[8][8] =
-{ -3,-4,-5,-2,-1,-5,-4,-3,
+{ -3,-4,-5,-1,-2,-5,-4,-3,
  -6,-6,-6,-6,-6,-6,-6,-6,
   0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0,
   6, 6, 6, 6, 6, 6, 6, 6,
-  3, 4, 5, 2, 1, 5, 4, 3 };
+  3, 4, 5, 1, 2, 5, 4, 3 };
 // chess pieces
 Sprite f[32];
 
 //functions
+
+// sets the initial positions of the pieces
 
 void loadPosition()
 {
@@ -46,7 +49,7 @@ void drawBoard(RenderWindow & window) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             auto colour = ((i + j) % 2 == 1) ? Color(118, 150, 86) : Color(238, 238, 210);
-            sf::RectangleShape rectangle(Vector2f(60,60));
+            sf::RectangleShape rectangle(Vector2f(size,size));
             rectangle.setFillColor(colour);
             rectangle.setPosition(60 * i, 60 * j);
             window.draw(rectangle);
@@ -61,6 +64,7 @@ Vector2f toCoord(char a, char b)
 }
 void move(std::string str)
 {
+    std::cout << str << std::endl;
     Vector2f oldPos = toCoord(str[0], str[1]);
     Vector2f newPos = toCoord(str[2], str[3]);
 
@@ -76,10 +80,21 @@ void move(std::string str)
     if (str == "e1c1") if (position.find("e1") == -1) move("a1d1");
     if (str == "e8c8") if (position.find("e8") == -1) move("a8d8");
 }
+// draws a blue oblique square on selected
+void drawSelectedPiece(RenderWindow& window) {
+    if (selectedPiece.first == -1 || board[selectedPiece.first][selectedPiece.second] == 0)
+        return;
+    sf::RectangleShape rectangle(Vector2f(size, size));
+    rectangle.setFillColor(sf::Color(137, 187, 254, 100));
+    rectangle.setOutlineThickness(3.f);
+    rectangle.setOutlineColor(sf::Color(137, 187, 254));
+    rectangle.setPosition(selectedPiece.first * size, selectedPiece.second * size);
+    window.draw(rectangle);
+}
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(480, 480), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(480, 480), "Chess");
     Texture pieces;
     pieces.loadFromFile("images/pieces.png");
     for (int i = 0; i < 32; i++) f[i].setTexture(pieces);
@@ -94,13 +109,16 @@ int main()
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
                 sf::Vector2i localPosition = sf::Mouse::getPosition(window);
-                std::cout << localPosition.x<< " " << localPosition.y << std::endl;
+                //std::cout  << char('a' + (localPosition.x / size)) << " "<<(8-(localPosition.y /size)) << std::endl;
+                selectedPiece = { localPosition.x / size , localPosition.y / size };
+                std::cout << board[localPosition.x / size ][localPosition.y / size] << std::endl;
             }
 
         }
 
         window.clear();
         drawBoard(window);
+        drawSelectedPiece(window);
         for (int i = 0; i < 32; i++) window.draw(f[i]); window.draw(f[1]);
         window.display();
     }
