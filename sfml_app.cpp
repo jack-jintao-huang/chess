@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_set>
+#include "Connector.hpp"
 
 // for hashing pairs in unordered_set
 struct pair_hash {
@@ -92,11 +93,19 @@ void move(std::string str)
     Vector2f oldPos = toCoord(str[0], str[1]);
     Vector2f newPos = toCoord(str[2], str[3]);
 
+    int piece = board[int(oldPos.y) / size][int(oldPos.x) / size];
+    std::cout << "Piece: " << piece << " x y:" << int(oldPos.x) / size << " " << int(oldPos.y) / size << std::endl;
+    board[int(oldPos.y) / size][int(oldPos.x) / size] = 0;
+    board[int(newPos.y) / size][int(newPos.x) / size] = piece;
+
     for (int i = 0; i < 32; i++)
         if (f[i].getPosition() == newPos) f[i].setPosition(-100, -100);
 
     for (int i = 0; i < 32; i++)
-        if (f[i].getPosition() == oldPos) f[i].setPosition(newPos);
+        if (f[i].getPosition() == oldPos) {
+           
+            f[i].setPosition(newPos);
+        }
 
     //castling       //if the king didn't move
     if (str == "e1g1") if (position.find("e1") == -1) move("h1f1");
@@ -135,7 +144,7 @@ void findAvailableMoves() {
             if (selectedPiece.first != 0)
                 if(selectedPiece.second-1 >=0 && board[selectedPiece.first - 1][selectedPiece.second-1] < 0)   //left side
                     availableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second-1 });
-                else if(selectedPiece.second + 1 < 8 && board[selectedPiece.first - 1][selectedPiece.second + 1] < 0) // right side
+                if(selectedPiece.second + 1 < 8 && board[selectedPiece.first - 1][selectedPiece.second + 1] < 0) // right side
                     availableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second + 1 });
             // queening and en passent  sometime later
         }
@@ -149,7 +158,7 @@ void findAvailableMoves() {
             if (selectedPiece.first != 7)
                 if (selectedPiece.second - 1 >= 0 && board[selectedPiece.first + 1][selectedPiece.second - 1] > 0)   //left side
                     availableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second - 1 });
-                else if (selectedPiece.second + 1 < 8 && board[selectedPiece.first + 1][selectedPiece.second + 1] > 0) // right side
+                if (selectedPiece.second + 1 < 8 && board[selectedPiece.first + 1][selectedPiece.second + 1] > 0) // right side
                     availableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second + 1 });
         }
         break;
@@ -178,7 +187,7 @@ void drawAvailableMoves(RenderWindow& window) {
         auto colour = (board[it->first][it->second] == 0) ?  Color(137, 187, 254, 100) : Color(235, 94, 85, 100);
         sf::RectangleShape rectangle(Vector2f(size, size));
         rectangle.setFillColor(colour);
-        rectangle.setPosition(it->first * size, it->second * size);
+        rectangle.setPosition(it->second * size, it->first * size);
         window.draw(rectangle);
     }
 }
@@ -191,9 +200,13 @@ int main()
     for (int i = 0; i < 32; i++) f[i].setTexture(pieces);
 
     loadPosition();
+   // char* stockfish = "stockfish.exe";
+    ConnectToEngine(const_cast<char*>("stockfish.exe"));
 
     bool isMove = false;
     float dx = 0, dy = 0;
+    std::pair<int, int> oldBoardPos, newBoardPos;
+    int pieceID;
     Vector2f oldPos, newPos;
     std::string str;
     int n = 0;
@@ -214,10 +227,12 @@ int main()
             if (event.type == Event::MouseButtonPressed)
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 {
+                    
                     sf::Vector2i localPosition = sf::Mouse::getPosition(window);
                     std::cout << localPosition.y / size << " "<< localPosition.x / size << std::endl;
                     selectedPiece = { localPosition.y / size , localPosition.x / size };
-                    std::cout << board[localPosition.y / size ][localPosition.x / size] << std::endl;
+                    pieceID = board[localPosition.y / size][localPosition.x / size];
+                    oldBoardPos = selectedPiece;
                     findAvailableMoves();
                     for (int i = 0; i < 32; i++)
                         if (f[i].getGlobalBounds().contains(pos.x, pos.y))
@@ -231,7 +246,15 @@ int main()
             if (event.type == Event::MouseButtonReleased)
                 if (event.key.code == Mouse::Left)
                 {
+                    
+                    sf::Vector2i localPosition = sf::Mouse::getPosition(window);
+                    newBoardPos = { localPosition.y / size , localPosition.x / size };
+                   // board[oldBoardPos.first][oldBoardPos.second] = 0;
+                    //board[newBoardPos.first][newBoardPos.second] = pieceID; // place new piece 
+                    if(oldBoardPos != newBoardPos)
+                        availableMoves.clear(); 
                     isMove = false;
+                    
                     Vector2f p = f[n].getPosition() + Vector2f(size / 2, size / 2);
                     newPos = Vector2f(size * int(p.x / size), size * int(p.y / size));
                     str = toChessNote(oldPos) + toChessNote(newPos);
@@ -239,7 +262,30 @@ int main()
                     if (oldPos != newPos) position += str + " ";
                     f[n].setPosition(newPos);
                 }
+            // computer move
+            
+            if (Keyboard::isKeyPressed(Keyboard::Space))
+            {
+                str = getNextMove(position);
 
+                oldPos = toCoord(str[0], str[1]);
+                newPos = toCoord(str[2], str[3]);
+
+                for (int i = 0; i < 32; i++) if (f[i].getPosition() == oldPos) n = i;
+
+                /////animation///////
+                for (int k = 0; k < 50; k++)
+                {
+                    Vector2f p = newPos - oldPos;
+                    f[n].move(p.x / 50, p.y / 50);
+                    drawBoard(window);
+                    for (int i = 0; i < 32; i++) window.draw(f[i]); window.draw(f[n]);
+                    window.display();
+                }
+
+                move(str);  position += str + " ";
+                f[n].setPosition(newPos);
+            } 
         }
         if (isMove) f[n].setPosition(pos.x - dx, pos.y - dy);
 
