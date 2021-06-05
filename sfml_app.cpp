@@ -1,13 +1,22 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <vector>
 
 using namespace sf;
+
+#define QUEEN  1 
+#define KING   2
+#define ROOK   3
+#define KNIGHT 4
+#define BISHOP 5
+#define PAWN   6
 
 // chess piece size
 int size = 60;
 std::string position = "";
 
 std::pair<int, int> selectedPiece = { -1, -1 };
+std::vector<std::pair<int, int>> avaiableMoves;
 // board initual layout
 int board[8][8] =
 { -3,-4,-5,-1,-2,-5,-4,-3,
@@ -86,12 +95,15 @@ void drawSelectedPiece(RenderWindow& window) {
         return;
     sf::RectangleShape rectangle(Vector2f(size, size));
     rectangle.setFillColor(sf::Color(137, 187, 254, 100));
-    rectangle.setOutlineThickness(3.f);
+    rectangle.setOutlineThickness(2.5);
     rectangle.setOutlineColor(sf::Color(137, 187, 254));
-    rectangle.setPosition(selectedPiece.first * size, selectedPiece.second * size);
+    rectangle.setPosition(selectedPiece.second * size, selectedPiece.first* size);
     window.draw(rectangle);
 }
 
+void findAvailableMoves() {
+
+}
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(480, 480), "Chess");
@@ -110,8 +122,8 @@ int main()
             {
                 sf::Vector2i localPosition = sf::Mouse::getPosition(window);
                 //std::cout  << char('a' + (localPosition.x / size)) << " "<<(8-(localPosition.y /size)) << std::endl;
-                selectedPiece = { localPosition.x / size , localPosition.y / size };
-                std::cout << board[localPosition.x / size ][localPosition.y / size] << std::endl;
+                selectedPiece = { localPosition.y / size , localPosition.x / size };
+                std::cout << board[localPosition.y / size ][localPosition.x / size] << std::endl;
             }
 
         }
