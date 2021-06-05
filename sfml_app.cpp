@@ -24,7 +24,7 @@ int size = 60;
 std::string position = "";
 
 std::pair<int, int> selectedPiece = { -1, -1 };
-std::unordered_set<std::pair<int, int>, pair_hash> avaiableMoves;
+std::unordered_set<std::pair<int, int>, pair_hash> availableMoves;
 // board initual layout
 int board[8][8] =
 { -3,-4,-5,-1,-2,-5,-4,-3,
@@ -40,6 +40,13 @@ Sprite f[32];
 
 //functions
 
+std::string toChessNote(Vector2f p)
+{
+    std::string s = "";
+    s += char(p.x / size + 97);
+    s += char(7 - p.y / size + 49);
+    return s;
+}
 // sets the initial positions of the pieces
 
 void loadPosition()
@@ -110,7 +117,7 @@ void drawSelectedPiece(RenderWindow& window) {
 }
 
 void findAvailableMoves() {
-    avaiableMoves.clear();
+    availableMoves.clear();
     if (selectedPiece.first == -1 || board[selectedPiece.first][selectedPiece.second] == 0) {
         return;
     }
@@ -120,30 +127,30 @@ void findAvailableMoves() {
     case PAWN:
         if (isWhite) {
             if (selectedPiece.first != 0 && board[selectedPiece.first - 1][selectedPiece.second] == 0)
-                avaiableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second });
-            if (selectedPiece.first == 6 && !avaiableMoves.empty() && board[selectedPiece.first - 2][selectedPiece.second] == 0) // havent moved
-                avaiableMoves.insert({ selectedPiece.first - 2 , selectedPiece.second });
+                availableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second });
+            if (selectedPiece.first == 6 && !availableMoves.empty() && board[selectedPiece.first - 2][selectedPiece.second] == 0) // havent moved
+                availableMoves.insert({ selectedPiece.first - 2 , selectedPiece.second });
             // taking pieces
             
             if (selectedPiece.first != 0)
                 if(selectedPiece.second-1 >=0 && board[selectedPiece.first - 1][selectedPiece.second-1] < 0)   //left side
-                    avaiableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second-1 });
+                    availableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second-1 });
                 else if(selectedPiece.second + 1 < 8 && board[selectedPiece.first - 1][selectedPiece.second + 1] < 0) // right side
-                    avaiableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second + 1 });
+                    availableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second + 1 });
             // queening and en passent  sometime later
         }
         else {
             if (selectedPiece.first != 7 && board[selectedPiece.first + 1][selectedPiece.second] == 0)
-                avaiableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second });
-            if (selectedPiece.first == 1 && !avaiableMoves.empty() && board[selectedPiece.first +2][selectedPiece.second] == 0) // havent moved
-                avaiableMoves.insert({ selectedPiece.first + 2 , selectedPiece.second });
+                availableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second });
+            if (selectedPiece.first == 1 && !availableMoves.empty() && board[selectedPiece.first +2][selectedPiece.second] == 0) // havent moved
+                availableMoves.insert({ selectedPiece.first + 2 , selectedPiece.second });
             // taking pieces
 
             if (selectedPiece.first != 7)
                 if (selectedPiece.second - 1 >= 0 && board[selectedPiece.first + 1][selectedPiece.second - 1] > 0)   //left side
-                    avaiableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second - 1 });
+                    availableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second - 1 });
                 else if (selectedPiece.second + 1 < 8 && board[selectedPiece.first + 1][selectedPiece.second + 1] > 0) // right side
-                    avaiableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second + 1 });
+                    availableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second + 1 });
         }
         break;
     case KNIGHT:
@@ -162,38 +169,85 @@ void findAvailableMoves() {
 
         break;
     }
-    if (!avaiableMoves.empty())
-        std::cout << avaiableMoves.size() << " Moves Found! \n";
+    if (!availableMoves.empty())
+        std::cout << availableMoves.size() << " Moves Found! \n";
 }
+
+void drawAvailableMoves(RenderWindow& window) {
+    for (auto it = availableMoves.begin(); it != availableMoves.end(); it++) {
+        auto colour = (board[it->first][it->second] == 0) ?  Color(137, 187, 254, 100) : Color(235, 94, 85, 100);
+        sf::RectangleShape rectangle(Vector2f(size, size));
+        rectangle.setFillColor(colour);
+        rectangle.setPosition(it->first * size, it->second * size);
+        window.draw(rectangle);
+    }
+}
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(480, 480), "Chess");
     Texture pieces;
     pieces.loadFromFile("images/pieces.png");
     for (int i = 0; i < 32; i++) f[i].setTexture(pieces);
+
     loadPosition();
+
+    bool isMove = false;
+    float dx = 0, dy = 0;
+    Vector2f oldPos, newPos;
+    std::string str;
+    int n = 0;
+
     while (window.isOpen())
     {
+        Vector2i pos = Mouse::getPosition(window);
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-            {
-                sf::Vector2i localPosition = sf::Mouse::getPosition(window);
-                //std::cout  << char('a' + (localPosition.x / size)) << " "<<(8-(localPosition.y /size)) << std::endl;
-                selectedPiece = { localPosition.y / size , localPosition.x / size };
-                std::cout << board[localPosition.y / size ][localPosition.x / size] << std::endl;
-                findAvailableMoves();
-            }
+            if (event.type == Event::KeyPressed)
+                if (event.key.code == Keyboard::BackSpace)
+                {
+                    if (position.length() > 6) position.erase(position.length() - 6, 5); loadPosition();
+                }
+            if (event.type == Event::MouseButtonPressed)
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                {
+                    sf::Vector2i localPosition = sf::Mouse::getPosition(window);
+                    std::cout << localPosition.y / size << " "<< localPosition.x / size << std::endl;
+                    selectedPiece = { localPosition.y / size , localPosition.x / size };
+                    std::cout << board[localPosition.y / size ][localPosition.x / size] << std::endl;
+                    findAvailableMoves();
+                    for (int i = 0; i < 32; i++)
+                        if (f[i].getGlobalBounds().contains(pos.x, pos.y))
+                        {
+                            isMove = true; n = i;
+                            dx = pos.x - f[i].getPosition().x;
+                            dy = pos.y - f[i].getPosition().y;
+                            oldPos = f[i].getPosition();
+                        }
+                }
+            if (event.type == Event::MouseButtonReleased)
+                if (event.key.code == Mouse::Left)
+                {
+                    isMove = false;
+                    Vector2f p = f[n].getPosition() + Vector2f(size / 2, size / 2);
+                    newPos = Vector2f(size * int(p.x / size), size * int(p.y / size));
+                    str = toChessNote(oldPos) + toChessNote(newPos);
+                    move(str);
+                    if (oldPos != newPos) position += str + " ";
+                    f[n].setPosition(newPos);
+                }
 
         }
+        if (isMove) f[n].setPosition(pos.x - dx, pos.y - dy);
 
         window.clear();
         drawBoard(window);
         drawSelectedPiece(window);
-        for (int i = 0; i < 32; i++) window.draw(f[i]); window.draw(f[1]);
+        drawAvailableMoves(window);
+        for (int i = 0; i < 32; i++) window.draw(f[i]); window.draw(f[n]);
         window.display();
     }
 
