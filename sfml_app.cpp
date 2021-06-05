@@ -1,6 +1,14 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
+#include <unordered_set>
+
+// for hashing pairs in unordered_set
+struct pair_hash {
+    inline std::size_t operator()(const std::pair<int, int>& v) const {
+        return v.first * 31 + v.second;
+    }
+};
 
 using namespace sf;
 
@@ -16,7 +24,7 @@ int size = 60;
 std::string position = "";
 
 std::pair<int, int> selectedPiece = { -1, -1 };
-std::vector<std::pair<int, int>> avaiableMoves;
+std::unordered_set<std::pair<int, int>, pair_hash> avaiableMoves;
 // board initual layout
 int board[8][8] =
 { -3,-4,-5,-1,-2,-5,-4,-3,
@@ -112,30 +120,30 @@ void findAvailableMoves() {
     case PAWN:
         if (isWhite) {
             if (selectedPiece.first != 0 && board[selectedPiece.first - 1][selectedPiece.second] == 0)
-                avaiableMoves.push_back({ selectedPiece.first - 1 , selectedPiece.second });
+                avaiableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second });
             if (selectedPiece.first == 6 && !avaiableMoves.empty() && board[selectedPiece.first - 2][selectedPiece.second] == 0) // havent moved
-                avaiableMoves.push_back({ selectedPiece.first - 2 , selectedPiece.second });
+                avaiableMoves.insert({ selectedPiece.first - 2 , selectedPiece.second });
             // taking pieces
             
             if (selectedPiece.first != 0)
                 if(selectedPiece.second-1 >=0 && board[selectedPiece.first - 1][selectedPiece.second-1] < 0)   //left side
-                    avaiableMoves.push_back({ selectedPiece.first - 1 , selectedPiece.second-1 });
+                    avaiableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second-1 });
                 else if(selectedPiece.second + 1 < 8 && board[selectedPiece.first - 1][selectedPiece.second + 1] < 0) // right side
-                    avaiableMoves.push_back({ selectedPiece.first - 1 , selectedPiece.second + 1 });
+                    avaiableMoves.insert({ selectedPiece.first - 1 , selectedPiece.second + 1 });
             // queening and en passent  sometime later
         }
         else {
             if (selectedPiece.first != 7 && board[selectedPiece.first + 1][selectedPiece.second] == 0)
-                avaiableMoves.push_back({ selectedPiece.first + 1 , selectedPiece.second });
+                avaiableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second });
             if (selectedPiece.first == 1 && !avaiableMoves.empty() && board[selectedPiece.first +2][selectedPiece.second] == 0) // havent moved
-                avaiableMoves.push_back({ selectedPiece.first + 2 , selectedPiece.second });
+                avaiableMoves.insert({ selectedPiece.first + 2 , selectedPiece.second });
             // taking pieces
 
             if (selectedPiece.first != 7)
                 if (selectedPiece.second - 1 >= 0 && board[selectedPiece.first + 1][selectedPiece.second - 1] > 0)   //left side
-                    avaiableMoves.push_back({ selectedPiece.first + 1 , selectedPiece.second - 1 });
+                    avaiableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second - 1 });
                 else if (selectedPiece.second + 1 < 8 && board[selectedPiece.first + 1][selectedPiece.second + 1] > 0) // right side
-                    avaiableMoves.push_back({ selectedPiece.first + 1 , selectedPiece.second + 1 });
+                    avaiableMoves.insert({ selectedPiece.first + 1 , selectedPiece.second + 1 });
         }
         break;
     case KNIGHT:
