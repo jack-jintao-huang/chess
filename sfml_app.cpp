@@ -41,6 +41,9 @@ Sprite f[32];
 
 //functions
 
+bool inBounds(int x, int y) {
+    return (x >= 0 && x < 8) && (y >= 0 && y < 8);
+}
 std::string toChessNote(Vector2f p)
 {
     std::string s = "";
@@ -163,7 +166,48 @@ void findAvailableMoves() {
         }
         break;
     case KNIGHT:
-
+        // 8 different moves
+        int x, y;
+        x = selectedPiece.second + 1;
+        y = selectedPiece.first + 2;
+        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+            availableMoves.insert({ y, x });
+        }
+        x = selectedPiece.second + 2;
+        y = selectedPiece.first + 1;
+        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+            availableMoves.insert({ y, x });
+        }
+        x = selectedPiece.second - 1;
+        y = selectedPiece.first + 2;
+        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+            availableMoves.insert({ y, x });
+        }
+        x = selectedPiece.second + 1;
+        y = selectedPiece.first - 2;
+        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+            availableMoves.insert({ y, x });
+        }
+        x = selectedPiece.second - 2;
+        y = selectedPiece.first + 1;
+        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+            availableMoves.insert({ y, x });
+        }
+        x = selectedPiece.second + 2;
+        y = selectedPiece.first - 1;
+        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+            availableMoves.insert({ y, x });
+        }
+        x = selectedPiece.second - 2;
+        y = selectedPiece.first - 1;
+        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+            availableMoves.insert({ y, x });
+        }
+        x = selectedPiece.second - 1;
+        y = selectedPiece.first - 2;
+        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+            availableMoves.insert({ y, x });
+        }
         break;
     case BISHOP:
 
