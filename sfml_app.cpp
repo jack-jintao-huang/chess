@@ -305,7 +305,6 @@ void findAvailableMoves() {
         break;
     case QUEEN:
         // combines bishop and rook logic
-         // 4 directions, stops after the first piece encountered
         // up right
         y = selectedPiece.first;
         x = selectedPiece.second;
@@ -395,8 +394,47 @@ void findAvailableMoves() {
 
         break;
     case KING:
+        y = selectedPiece.first+1;
+        x = selectedPiece.second;
+        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+            availableMoves.insert({ y, x });
 
+        y = selectedPiece.first - 1;
+        x = selectedPiece.second;
+        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+            availableMoves.insert({ y, x });
+
+        y = selectedPiece.first ;
+        x = selectedPiece.second+1;
+                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+            availableMoves.insert({ y, x });
+
+        y = selectedPiece.first;
+        x = selectedPiece.second - 1;
+                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+            availableMoves.insert({ y, x });
+
+        y = selectedPiece.first + 1;
+        x = selectedPiece.second + 1;
+                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+            availableMoves.insert({ y, x });
+
+        y = selectedPiece.first - 1;
+        x = selectedPiece.second + 1;
+                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+            availableMoves.insert({ y, x });
+
+        y = selectedPiece.first + 1;
+        x = selectedPiece.second - 1;
+                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+            availableMoves.insert({ y, x });
+
+        y = selectedPiece.first - 1;
+        x = selectedPiece.second - 1;
+                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+            availableMoves.insert({ y, x });
         break;
+
     }
     if (!availableMoves.empty())
         std::cout << availableMoves.size() << " Moves Found! \n";
