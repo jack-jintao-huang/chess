@@ -135,6 +135,7 @@ void findAvailableMoves() {
     }
     int piece = abs(board[selectedPiece.first][selectedPiece.second]);
     bool isWhite = board[selectedPiece.first][selectedPiece.second] > 0;
+    int x, y;
     switch (piece) {
     case PAWN:
         if (isWhite) {
@@ -167,7 +168,7 @@ void findAvailableMoves() {
         break;
     case KNIGHT:
         // 8 different moves
-        int x, y;
+        
         x = selectedPiece.second + 1;
         y = selectedPiece.first + 2;
         if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
@@ -209,8 +210,54 @@ void findAvailableMoves() {
             availableMoves.insert({ y, x });
         }
         break;
-    case BISHOP:
-
+    case BISHOP: 
+        // 4 directions, stops after the first piece encountered
+        // up right
+        y = selectedPiece.first;
+        x = selectedPiece.second;
+        do {
+            y++;
+            x++;
+            if (inBounds(x,y) && (board[y][x] == 0))
+                availableMoves.insert({ y, x });
+        }while (inBounds(x, y) && board[y][x] == 0);
+        if(inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+            availableMoves.insert({ y, x });
+        
+        // up left
+        y = selectedPiece.first;
+        x = selectedPiece.second;
+        do {
+            y++;
+            x--;
+            if (inBounds(x, y) && board[y][x] == 0)
+                availableMoves.insert({ y, x });
+        } while (inBounds(x, y) && board[y][x] == 0);
+        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+            availableMoves.insert({ y, x });
+        // down right
+        y = selectedPiece.first;
+        x = selectedPiece.second;
+        do {
+            y--;
+            x++;
+            if (inBounds(x, y) && board[y][x] == 0)
+                availableMoves.insert({ y, x });
+        } while (inBounds(x, y) && board[y][x] == 0);
+        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+            availableMoves.insert({ y, x });
+        // down left
+        y = selectedPiece.first;
+        x = selectedPiece.second;
+        do {
+            y--;
+            x--;
+            if (inBounds(x, y) && board[y][x] == 0)
+                availableMoves.insert({ y, x });
+        } while (inBounds(x, y) && board[y][x] == 0);
+        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+            availableMoves.insert({ y, x });
+            
         break;
     case ROOK:
 
