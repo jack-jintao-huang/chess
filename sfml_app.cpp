@@ -23,11 +23,14 @@ using namespace sf;
 // chess piece size
 int size = 60;
 std::string position = "";
-
+bool isGameOver = false;
+bool drawBlackCheck = false;
+bool drawWhiteCheck = false;
 std::pair<int, int> selectedPiece = { -1, -1 };
 std::pair<int, int> whiteKingPos = {7, 4}; // y, x
 std::pair<int, int> blackKingPos = { 0, 4 }; // y, x
 std::unordered_set<std::pair<int, int>, pair_hash> availableMoves;
+
 // board initual layout
 int board[8][8] =
 { -3,-4,-5,-1,-2,-5,-4,-3,
@@ -503,19 +506,72 @@ void findLegalMoves(std::pair<int, int> selected, std::unordered_set<std::pair<i
         else if (isKing && !isWhite)
             blackKingPos= originalKingPos;
     }
-    if (!moves.empty())
-        std::cout << moves.size() << " Moves Found! \n";
 }
-void findCheck(RenderWindow& window) {
+void findCheck() {
     std::unordered_set<std::pair<int, int>, pair_hash> allLegalWhiteMoves;
     std::unordered_set<std::pair<int, int>, pair_hash> allLegalBlackMoves;
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             if (board[y][x] != 0) {
                 bool isWhite = board[y][x] > 0;
-
+                std::unordered_set<std::pair<int, int>, pair_hash> moves;
+                std::pair<int, int> yx = std::make_pair(y, x);
+                findAvailableMoves(yx, moves, board);
+                findLegalMoves(yx, moves);
+                if (isWhite)
+                    allLegalWhiteMoves.insert(moves.begin(), moves.end());
+                else
+                    allLegalBlackMoves.insert(moves.begin(), moves.end());
             }
         }
+    }
+    if (allLegalBlackMoves.find(whiteKingPos) != allLegalBlackMoves.end()) {
+        drawWhiteCheck = true;
+        std::cout << "Check" << std::endl;
+        // checkmate
+        if (allLegalWhiteMoves.empty()) {
+            std::cout << "Checkmate, black wins!" << std::endl;
+            isGameOver = true;
+            return;
+        }
+    }
+    else {
+        drawWhiteCheck = false;
+    }
+    if (allLegalWhiteMoves.find(blackKingPos) != allLegalWhiteMoves.end()) {
+        std::cout << "Check" << std::endl;
+        drawBlackCheck = true;
+        
+        // checkmate
+        if (allLegalBlackMoves.empty()) {
+            std::cout << "Checkmate, white wins!" << std::endl;
+            isGameOver = true;
+            return;
+        }
+    }
+    else {
+        drawBlackCheck = false;
+    }
+    if (allLegalBlackMoves.empty() || allLegalWhiteMoves.empty()) {
+        std::cout << "Stalemate" << std::endl;
+        isGameOver = true;
+        return;
+    }
+}
+void drawCheck(RenderWindow& window) {
+    if (drawBlackCheck) {
+        auto colour = Color(235, 94, 85, 200);
+        sf::RectangleShape rectangle(Vector2f(size, size));
+        rectangle.setFillColor(colour);
+        rectangle.setPosition(blackKingPos.second * size, blackKingPos.first * size);
+        window.draw(rectangle);
+    }
+    if (drawWhiteCheck) {
+        auto colour = Color(235, 94, 85, 200);
+        sf::RectangleShape rectangle(Vector2f(size, size));
+        rectangle.setFillColor(colour);
+        rectangle.setPosition(whiteKingPos.second * size, whiteKingPos.first * size);
+        window.draw(rectangle);
     }
 }
 int main()
@@ -588,6 +644,7 @@ int main()
                     newPos = Vector2f(size * int(p.x / size), size * int(p.y / size));
                     str = toChessNote(oldPos) + toChessNote(newPos);
                     move(str);
+                    findCheck();
                     if (oldPos != newPos) position += str + " ";
                     f[n].setPosition(newPos);
                 }
@@ -614,6 +671,7 @@ int main()
 
                 move(str);  position += str + " ";
                 f[n].setPosition(newPos);
+                findCheck();
             } 
         }
         if (isMove) f[n].setPosition(pos.x - dx, pos.y - dy);
@@ -621,6 +679,7 @@ int main()
         window.clear();
         drawBoard(window);
         drawSelectedPiece(window);
+        drawCheck(window);
         drawAvailableMoves(window);
         for (int i = 0; i < 32; i++) window.draw(f[i]); window.draw(f[n]);
         window.display();
