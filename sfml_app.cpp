@@ -455,7 +455,7 @@ void drawAvailableMoves(RenderWindow& window) {
     }
 }
 // check for checks + remove available moves if it results in a check
-void findLegalMoves(std::pair<int, int> selected, std::unordered_set<std::pair<int, int>, pair_hash> moves) {
+void findLegalMoves(std::pair<int, int> selected, std::unordered_set<std::pair<int, int>, pair_hash> & moves) {
     bool isWhite = board[selected.first][selected.second] > 0;
     bool isKing = abs(board[selected.first][selected.second]) == KING;
     std::pair<int, int> originalKingPos;
@@ -507,7 +507,16 @@ void findLegalMoves(std::pair<int, int> selected, std::unordered_set<std::pair<i
         std::cout << moves.size() << " Moves Found! \n";
 }
 void findCheck(RenderWindow& window) {
+    std::unordered_set<std::pair<int, int>, pair_hash> allLegalWhiteMoves;
+    std::unordered_set<std::pair<int, int>, pair_hash> allLegalBlackMoves;
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            if (board[y][x] != 0) {
+                bool isWhite = board[y][x] > 0;
 
+            }
+        }
+    }
 }
 int main()
 {
