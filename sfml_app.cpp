@@ -133,41 +133,42 @@ void drawSelectedPiece(RenderWindow& window) {
     window.draw(rectangle);
 }
 
-void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pair<int, int>, pair_hash> & moves) {
-    moves.clear();
-    if (selected.first == -1 || board[selected.first][selected.second] == 0) {
+void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pair<int, int>, pair_hash> & moves, 
+                        int sBoard[][8]) {
+
+    if (selected.first == -1 || sBoard[selected.first][selected.second] == 0) {
         return;
     }
-    int piece = abs(board[selected.first][selected.second]);
-    bool isWhite = board[selected.first][selected.second] > 0;
+    int piece = abs(sBoard[selected.first][selected.second]);
+    bool isWhite = sBoard[selected.first][selected.second] > 0;
     int x, y;
     switch (piece) {
     case PAWN:
         if (isWhite) {
-            if (selected.first != 0 && board[selected.first - 1][selected.second] == 0)
+            if (selected.first != 0 && sBoard[selected.first - 1][selected.second] == 0)
                 moves.insert({ selected.first - 1 , selected.second });
-            if (selected.first == 6 && !moves.empty() && board[selected.first - 2][selected.second] == 0) // havent moved
+            if (selected.first == 6 && !moves.empty() && sBoard[selected.first - 2][selected.second] == 0) // havent moved
                 moves.insert({ selected.first - 2 , selected.second });
             // taking pieces
             
             if (selected.first != 0)
-                if(selected.second-1 >=0 && board[selected.first - 1][selected.second-1] < 0)   //left side
+                if(selected.second-1 >=0 && sBoard[selected.first - 1][selected.second-1] < 0)   //left side
                     moves.insert({ selected.first - 1 , selected.second-1 });
-                if(selected.second + 1 < 8 && board[selected.first - 1][selected.second + 1] < 0) // right side
+                if(selected.second + 1 < 8 && sBoard[selected.first - 1][selected.second + 1] < 0) // right side
                     moves.insert({ selected.first - 1 , selected.second + 1 });
             // queening and en passent  sometime later
         }
         else {
-            if (selected.first != 7 && board[selected.first + 1][selected.second] == 0)
+            if (selected.first != 7 && sBoard[selected.first + 1][selected.second] == 0)
                 moves.insert({ selected.first + 1 , selected.second });
-            if (selected.first == 1 && !moves.empty() && board[selected.first +2][selected.second] == 0) // havent moved
+            if (selected.first == 1 && !moves.empty() && sBoard[selected.first +2][selected.second] == 0) // havent moved
                 moves.insert({ selected.first + 2 , selected.second });
             // taking pieces
 
             if (selected.first != 7)
-                if (selected.second - 1 >= 0 && board[selected.first + 1][selected.second - 1] > 0)   //left side
+                if (selected.second - 1 >= 0 && sBoard[selected.first + 1][selected.second - 1] > 0)   //left side
                     moves.insert({ selected.first + 1 , selected.second - 1 });
-                if (selected.second + 1 < 8 && board[selected.first + 1][selected.second + 1] > 0) // right side
+                if (selected.second + 1 < 8 && sBoard[selected.first + 1][selected.second + 1] > 0) // right side
                     moves.insert({ selected.first + 1 , selected.second + 1 });
         }
         break;
@@ -176,42 +177,42 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         
         x = selected.second + 1;
         y = selected.first + 2;
-        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+        if (inBounds(x, y) && (sBoard[y][x] == 0 || (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))) {
             moves.insert({ y, x });
         }
         x = selected.second + 2;
         y = selected.first + 1;
-        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+        if (inBounds(x, y) && (sBoard[y][x] == 0 || (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))) {
             moves.insert({ y, x });
         }
         x = selected.second - 1;
         y = selected.first + 2;
-        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+        if (inBounds(x, y) && (sBoard[y][x] == 0 || (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))) {
             moves.insert({ y, x });
         }
         x = selected.second + 1;
         y = selected.first - 2;
-        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+        if (inBounds(x, y) && (sBoard[y][x] == 0 || (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))) {
             moves.insert({ y, x });
         }
         x = selected.second - 2;
         y = selected.first + 1;
-        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+        if (inBounds(x, y) && (sBoard[y][x] == 0 || (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))) {
             moves.insert({ y, x });
         }
         x = selected.second + 2;
         y = selected.first - 1;
-        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+        if (inBounds(x, y) && (sBoard[y][x] == 0 || (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))) {
             moves.insert({ y, x });
         }
         x = selected.second - 2;
         y = selected.first - 1;
-        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+        if (inBounds(x, y) && (sBoard[y][x] == 0 || (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))) {
             moves.insert({ y, x });
         }
         x = selected.second - 1;
         y = selected.first - 2;
-        if (inBounds(x, y) && (board[y][x] == 0 || (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))) {
+        if (inBounds(x, y) && (sBoard[y][x] == 0 || (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))) {
             moves.insert({ y, x });
         }
         break;
@@ -223,10 +224,10 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         do {
             y++;
             x++;
-            if (inBounds(x,y) && (board[y][x] == 0))
+            if (inBounds(x,y) && (sBoard[y][x] == 0))
                 moves.insert({ y, x });
-        }while (inBounds(x, y) && board[y][x] == 0);
-        if(inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        }while (inBounds(x, y) && sBoard[y][x] == 0);
+        if(inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         
         // up left
@@ -235,10 +236,10 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         do {
             y++;
             x--;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         // down right
         y = selected.first;
@@ -246,10 +247,10 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         do {
             y--;
             x++;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         // down left
         y = selected.first;
@@ -257,10 +258,10 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         do {
             y--;
             x--;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
             
         break;
@@ -270,10 +271,10 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         // up
         do {
             y++;
-            if (inBounds(x, y) && (board[y][x] == 0))
+            if (inBounds(x, y) && (sBoard[y][x] == 0))
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
 
         // down
@@ -281,30 +282,30 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         x = selected.second;
         do {
             y--;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         //  right
         y = selected.first;
         x = selected.second;
         do {
             x++;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         // left
         y = selected.first;
         x = selected.second;
         do {
             x--;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
 
         break;
@@ -316,10 +317,10 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         do {
             y++;
             x++;
-            if (inBounds(x, y) && (board[y][x] == 0))
+            if (inBounds(x, y) && (sBoard[y][x] == 0))
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
 
         // up left
@@ -328,10 +329,10 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         do {
             y++;
             x--;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         // down right
         y = selected.first;
@@ -339,10 +340,10 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         do {
             y--;
             x++;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         // down left
         y = selected.first;
@@ -350,20 +351,20 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         do {
             y--;
             x--;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         y = selected.first;
         x = selected.second;
         // up
         do {
             y++;
-            if (inBounds(x, y) && (board[y][x] == 0))
+            if (inBounds(x, y) && (sBoard[y][x] == 0))
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
 
         // down
@@ -371,78 +372,77 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         x = selected.second;
         do {
             y--;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         //  right
         y = selected.first;
         x = selected.second;
         do {
             x++;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
         // left
         y = selected.first;
         x = selected.second;
         do {
             x--;
-            if (inBounds(x, y) && board[y][x] == 0)
+            if (inBounds(x, y) && sBoard[y][x] == 0)
                 moves.insert({ y, x });
-        } while (inBounds(x, y) && board[y][x] == 0);
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite))
+        } while (inBounds(x, y) && sBoard[y][x] == 0);
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite))
             moves.insert({ y, x });
 
         break;
     case KING:
         y = selected.first+1;
         x = selected.second;
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite || sBoard[y][x] == 0))
             moves.insert({ y, x });
 
         y = selected.first - 1;
         x = selected.second;
-        if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+        if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite || sBoard[y][x] == 0))
             moves.insert({ y, x });
 
         y = selected.first ;
         x = selected.second+1;
-                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+                if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite || sBoard[y][x] == 0))
             moves.insert({ y, x });
 
         y = selected.first;
         x = selected.second - 1;
-                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+                if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite || sBoard[y][x] == 0))
             moves.insert({ y, x });
 
         y = selected.first + 1;
         x = selected.second + 1;
-                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+                if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite || sBoard[y][x] == 0))
             moves.insert({ y, x });
 
         y = selected.first - 1;
         x = selected.second + 1;
-                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+                if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite || sBoard[y][x] == 0))
             moves.insert({ y, x });
 
         y = selected.first + 1;
         x = selected.second - 1;
-                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+                if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite || sBoard[y][x] == 0))
             moves.insert({ y, x });
 
         y = selected.first - 1;
         x = selected.second - 1;
-                if (inBounds(x, y) && (board[y][x] < 0 && isWhite || board[y][x] > 0 && !isWhite || board[y][x] == 0))
+                if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite || sBoard[y][x] == 0))
             moves.insert({ y, x });
         break;
 
     }
-    if (!moves.empty())
-        std::cout << moves.size() << " Moves Found! \n";
+
 }
 
 void drawAvailableMoves(RenderWindow& window) {
@@ -453,6 +453,40 @@ void drawAvailableMoves(RenderWindow& window) {
         rectangle.setPosition(it->second * size, it->first * size);
         window.draw(rectangle);
     }
+}
+// check for checks + remove available moves if it results in a check
+void findLegalMoves() {
+    bool isWhite = board[selectedPiece.first][selectedPiece.second] > 0;
+    for (auto it = availableMoves.begin(); it != availableMoves.end(); it++) {
+        // first, simulate the moves
+        int simulatedBoard[8][8];
+        std::copy(&board[0][0], &board[0][0] + 64, &simulatedBoard[0][0]);
+        // make move
+        int piece = board[selectedPiece.first][selectedPiece.second];
+        simulatedBoard[it->first][it->second] = piece;
+        simulatedBoard[selectedPiece.first][selectedPiece.second] = 0;
+        // make a hash that stores every move opponent can take in the next turn
+        // then compare if the king's position is in any of them
+        std::unordered_set<std::pair<int, int>, pair_hash> enemyNextMoves;
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                // find enemy piece
+                if (simulatedBoard[y][x] != 0 && (simulatedBoard[y][x] < 0 && isWhite || simulatedBoard[y][x] > 0 && !isWhite )) {
+                    findAvailableMoves(std::make_pair(y, x), enemyNextMoves, simulatedBoard);
+                }
+            }
+        }
+        if (isWhite) {
+            if (enemyNextMoves.find(whiteKingPos) != enemyNextMoves.end())
+                availableMoves.erase(it);
+        }
+        else {
+            if (enemyNextMoves.find(blackKingPos) != enemyNextMoves.end())
+                availableMoves.erase(it);
+        }
+    }
+    if (!availableMoves.empty())
+        std::cout << availableMoves.size() << " Moves Found! \n";
 }
 
 int main()
@@ -496,7 +530,10 @@ int main()
                     selectedPiece = { localPosition.y / size , localPosition.x / size };
                     pieceID = board[localPosition.y / size][localPosition.x / size];
                     oldBoardPos = selectedPiece;
-                    findAvailableMoves(selectedPiece, availableMoves);
+                    availableMoves.clear();
+                    findAvailableMoves(selectedPiece, availableMoves, board);
+                    findLegalMoves();
+
                     for (int i = 0; i < 32; i++)
                         if (f[i].getGlobalBounds().contains(pos.x, pos.y))
                         {
