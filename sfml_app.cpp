@@ -100,8 +100,9 @@ void move(std::string str)
     std::cout << str << std::endl;
     Vector2f oldPos = toCoord(str[0], str[1]);
     Vector2f newPos = toCoord(str[2], str[3]);
-
     int piece = board[int(oldPos.y) / size][int(oldPos.x) / size];
+    if (piece == 0)
+        return;
     std::cout << "Piece: " << piece << " x y:" << int(oldPos.x) / size << " " << int(oldPos.y) / size << std::endl;
     board[int(oldPos.y) / size][int(oldPos.x) / size] = 0;
     board[int(newPos.y) / size][int(newPos.x) / size] = piece;
@@ -609,16 +610,17 @@ int main()
             if (event.type == Event::MouseButtonPressed)
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 {
-                    
+                    std::cout << str << std::endl;
                     sf::Vector2i localPosition = sf::Mouse::getPosition(window);
                     std::cout << localPosition.y / size << " "<< localPosition.x / size << std::endl;
                     selectedPiece = { localPosition.y / size , localPosition.x / size };
                     pieceID = board[localPosition.y / size][localPosition.x / size];
                     oldBoardPos = selectedPiece;
                     availableMoves.clear();
-                    findAvailableMoves(selectedPiece, availableMoves, board);
-                    findLegalMoves(selectedPiece, availableMoves);
-
+                    if (pieceID != 0) {
+                        findAvailableMoves(selectedPiece, availableMoves, board);
+                        findLegalMoves(selectedPiece, availableMoves);
+                    }
                     for (int i = 0; i < 32; i++)
                         if (f[i].getGlobalBounds().contains(pos.x, pos.y))
                         {
@@ -639,7 +641,6 @@ int main()
                     if(oldBoardPos != newBoardPos)
                         availableMoves.clear(); 
                     isMove = false;
-                    
                     Vector2f p = f[n].getPosition() + Vector2f(size / 2, size / 2);
                     newPos = Vector2f(size * int(p.x / size), size * int(p.y / size));
                     str = toChessNote(oldPos) + toChessNote(newPos);
