@@ -455,16 +455,29 @@ void drawAvailableMoves(RenderWindow& window) {
     }
 }
 // check for checks + remove available moves if it results in a check
-void findLegalMoves() {
-    bool isWhite = board[selectedPiece.first][selectedPiece.second] > 0;
-    for (auto it = availableMoves.begin(); it != availableMoves.end(); it++) {
+void findLegalMoves(std::pair<int, int> selected, std::unordered_set<std::pair<int, int>, pair_hash> moves) {
+    bool isWhite = board[selected.first][selected.second] > 0;
+    bool isKing = abs(board[selected.first][selected.second]) == KING;
+    std::pair<int, int> originalKingPos;
+    if (isKing && isWhite) {
+        originalKingPos = whiteKingPos;
+    }
+    else if (isKing && !isWhite)
+        originalKingPos = blackKingPos;
+
+    for (auto it = moves.begin(); it != moves.end(); it++) {
         // first, simulate the moves
         int simulatedBoard[8][8];
         std::copy(&board[0][0], &board[0][0] + 64, &simulatedBoard[0][0]);
         // make move
-        int piece = board[selectedPiece.first][selectedPiece.second];
+        int piece = board[selected.first][selected.second];
         simulatedBoard[it->first][it->second] = piece;
-        simulatedBoard[selectedPiece.first][selectedPiece.second] = 0;
+        simulatedBoard[selected.first][selected.second] = 0;
+        if (isKing && isWhite) {
+            whiteKingPos = *it;
+        }
+        else if (isKing && !isWhite)
+            blackKingPos = *it;
         // make a hash that stores every move opponent can take in the next turn
         // then compare if the king's position is in any of them
         std::unordered_set<std::pair<int, int>, pair_hash> enemyNextMoves;
@@ -478,17 +491,24 @@ void findLegalMoves() {
         }
         if (isWhite) {
             if (enemyNextMoves.find(whiteKingPos) != enemyNextMoves.end())
-                availableMoves.erase(it);
+                moves.erase(it);
         }
         else {
             if (enemyNextMoves.find(blackKingPos) != enemyNextMoves.end())
-                availableMoves.erase(it);
+                moves.erase(it);
         }
+        if (isKing && isWhite) {
+            whiteKingPos = originalKingPos ;
+        }
+        else if (isKing && !isWhite)
+            blackKingPos= originalKingPos;
     }
-    if (!availableMoves.empty())
-        std::cout << availableMoves.size() << " Moves Found! \n";
+    if (!moves.empty())
+        std::cout << moves.size() << " Moves Found! \n";
 }
+void findCheck(RenderWindow& window) {
 
+}
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(480, 480), "Chess");
@@ -532,7 +552,7 @@ int main()
                     oldBoardPos = selectedPiece;
                     availableMoves.clear();
                     findAvailableMoves(selectedPiece, availableMoves, board);
-                    findLegalMoves();
+                    findLegalMoves(selectedPiece, availableMoves);
 
                     for (int i = 0; i < 32; i++)
                         if (f[i].getGlobalBounds().contains(pos.x, pos.y))
