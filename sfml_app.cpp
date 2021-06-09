@@ -638,16 +638,24 @@ int main()
                     newBoardPos = { localPosition.y / size , localPosition.x / size };
                    // board[oldBoardPos.first][oldBoardPos.second] = 0;
                     //board[newBoardPos.first][newBoardPos.second] = pieceID; // place new piece 
-                    if(oldBoardPos != newBoardPos)
-                        availableMoves.clear(); 
+                    
                     isMove = false;
                     Vector2f p = f[n].getPosition() + Vector2f(size / 2, size / 2);
                     newPos = Vector2f(size * int(p.x / size), size * int(p.y / size));
                     str = toChessNote(oldPos) + toChessNote(newPos);
-                    move(str);
-                    findCheck();
-                    if (oldPos != newPos) position += str + " ";
-                    f[n].setPosition(newPos);
+                    if(board[selectedPiece.first][selectedPiece.second] != 0)
+                        if (availableMoves.find(newBoardPos) != availableMoves.end()) {
+                            move(str);
+                            findCheck();
+                            if (oldPos != newPos) position += str + " ";
+                            f[n].setPosition(newPos);
+                        }
+                        else {
+                            f[n].setPosition(selectedPiece.second * size, selectedPiece.first * size);
+                        }
+                        
+                    if (oldBoardPos != newBoardPos)
+                        availableMoves.clear();
                 }
             // computer move
             
