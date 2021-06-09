@@ -20,6 +20,8 @@ using namespace sf;
 #define BISHOP 5
 #define PAWN   6
 
+// True for on, false for off
+#define RANDOMMOVE_ON true
 // chess piece size
 int size = 60;
 std::string position = "";
@@ -95,6 +97,15 @@ Vector2f toCoord(char a, char b)
     int y = 7 - int(b) + 49;
     return Vector2f(x * size, y * size);
 }
+void setQueenSprite(Sprite sprite, bool isWhite, Vector2f newPos) {
+    Texture pieces;
+    pieces.loadFromFile("images/pieces.png");
+    sprite.setTexture(pieces);
+    int y = isWhite ? 1 : 0;
+    sprite.setTextureRect(IntRect(0, size * y, size, size));
+    sprite.setPosition(newPos);
+    std::cout << "Here";
+}
 void move(std::string str)
 {
     std::cout << str << std::endl;
@@ -110,14 +121,27 @@ void move(std::string str)
         whiteKingPos = { int(newPos.y) / size ,int(newPos.x) / size };
     }else if(piece == -KING)
         blackKingPos = { int(newPos.y) / size ,int(newPos.x) / size };
+    bool isQueening = false;
+    // queening
+    if (piece == PAWN && int(newPos.y) / size == 0) {
+        board[0][int(newPos.x) / size] = QUEEN;
+        isQueening = true;
+        loadPosition();
+    }
+    if (piece == -PAWN && int(newPos.y) / size == 7) {
+        board[7][int(newPos.x) / size] = -QUEEN;
+        isQueening = true;
+        loadPosition();
+    }
+    bool isWhite = piece > 0;
     for (int i = 0; i < 32; i++)
         if (f[i].getPosition() == newPos) f[i].setPosition(-100, -100);
 
-    for (int i = 0; i < 32; i++)
+    for (int i = 0; i < 32; i++) {
         if (f[i].getPosition() == oldPos) {
-           
             f[i].setPosition(newPos);
         }
+    }
 
     //castling       //if the king didn't move
     if (str == "e1g1") if (position.find("e1") == -1) move("h1f1");
@@ -644,7 +668,7 @@ int main()
                     newPos = Vector2f(size * int(p.x / size), size * int(p.y / size));
                     str = toChessNote(oldPos) + toChessNote(newPos);
                     if(board[selectedPiece.first][selectedPiece.second] != 0)
-                        if (availableMoves.find(newBoardPos) != availableMoves.end()) {
+                        if ( RANDOMMOVE_ON||availableMoves.find(newBoardPos) != availableMoves.end()) {
                             move(str);
                             findCheck();
                             if (oldPos != newPos) position += str + " ";
@@ -662,7 +686,6 @@ int main()
             if (Keyboard::isKeyPressed(Keyboard::Space))
             {
                 str = getNextMove(position);
-
                 oldPos = toCoord(str[0], str[1]);
                 newPos = toCoord(str[2], str[3]);
 
