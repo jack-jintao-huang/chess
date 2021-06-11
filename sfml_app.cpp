@@ -21,7 +21,7 @@ using namespace sf;
 #define PAWN   6
 
 // True for on, false for off
-#define RANDOMMOVE_ON true
+#define RANDOMMOVE_ON false
 // chess piece size
 int size = 60;
 std::string position = "";
@@ -32,9 +32,11 @@ std::pair<int, int> selectedPiece = { -1, -1 };
 std::pair<int, int> whiteKingPos = {7, 4}; // y, x
 std::pair<int, int> blackKingPos = { 0, 4 }; // y, x
 std::unordered_set<std::pair<int, int>, pair_hash> availableMoves;
+// used for castling
 bool whiteKingMoved = false;
 bool blackKingMoved = false;
-
+// used for turn keeping
+bool isWhiteTurn = true;
 // board initual layout
 int board[8][8] =
 { -3,-4,-5,-1,-2,-5,-4,-3,
@@ -506,6 +508,11 @@ void drawAvailableMoves(RenderWindow& window) {
 void findLegalMoves(std::pair<int, int> selected, std::unordered_set<std::pair<int, int>, pair_hash> & moves) {
     bool isWhite = board[selected.first][selected.second] > 0;
     bool isKing = abs(board[selected.first][selected.second]) == KING;
+    if (!RANDOMMOVE_ON &&((isWhite && !isWhiteTurn) || (!isWhite && isWhiteTurn))) { // not your turn
+        moves.clear();
+        return;
+    }
+
     std::pair<int, int> originalKingPos;
     if (isKing && isWhite) {
         originalKingPos = whiteKingPos;
@@ -711,8 +718,10 @@ int main()
                             f[n].setPosition(selectedPiece.second * size, selectedPiece.first * size);
                         }
                         
-                    if (oldBoardPos != newBoardPos)
+                    if (oldBoardPos != newBoardPos) {
                         availableMoves.clear();
+                        isWhiteTurn = !isWhiteTurn;
+                    }
                 }
             // computer move
             
@@ -737,6 +746,7 @@ int main()
                 move(str);  position += str + " ";
                 f[n].setPosition(newPos);
                 findCheck();
+                isWhiteTurn = !isWhiteTurn;
             } 
         }
         if (isMove) f[n].setPosition(pos.x - dx, pos.y - dy);
