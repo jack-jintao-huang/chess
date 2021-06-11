@@ -126,12 +126,10 @@ void move(std::string str)
     if (piece == PAWN && int(newPos.y) / size == 0) {
         board[0][int(newPos.x) / size] = QUEEN;
         isQueening = true;
-        loadPosition();
     }
     if (piece == -PAWN && int(newPos.y) / size == 7) {
         board[7][int(newPos.x) / size] = -QUEEN;
         isQueening = true;
-        loadPosition();
     }
     bool isWhite = piece > 0;
     for (int i = 0; i < 32; i++)
