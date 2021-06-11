@@ -26,12 +26,14 @@ using namespace sf;
 int size = 60;
 std::string position = "";
 bool isGameOver = false;
-bool drawBlackCheck = false;
-bool drawWhiteCheck = false;
+bool isBlackCheck = false;
+bool isWhiteCheck = false;
 std::pair<int, int> selectedPiece = { -1, -1 };
 std::pair<int, int> whiteKingPos = {7, 4}; // y, x
 std::pair<int, int> blackKingPos = { 0, 4 }; // y, x
 std::unordered_set<std::pair<int, int>, pair_hash> availableMoves;
+bool whiteKingMoved = false;
+bool blackKingMoved = false;
 
 // board initual layout
 int board[8][8] =
@@ -119,8 +121,14 @@ void move(std::string str)
     board[int(newPos.y) / size][int(newPos.x) / size] = piece;
     if (piece == KING) {
         whiteKingPos = { int(newPos.y) / size ,int(newPos.x) / size };
-    }else if(piece == -KING)
+        if (oldPos != newPos)
+            whiteKingMoved = true;
+    }
+    else if (piece == -KING) {
         blackKingPos = { int(newPos.y) / size ,int(newPos.x) / size };
+        if (oldPos != newPos)
+            blackKingMoved = true;
+    }
     bool isQueening = false;
     // queening
     if (piece == PAWN && int(newPos.y) / size == 0) {
@@ -465,6 +473,20 @@ void findAvailableMoves(std::pair<int, int> selected, std::unordered_set<std::pa
         x = selected.second - 1;
                 if (inBounds(x, y) && (sBoard[y][x] < 0 && isWhite || sBoard[y][x] > 0 && !isWhite || sBoard[y][x] == 0))
             moves.insert({ y, x });
+
+        // castling
+        if (isWhite && !isWhiteCheck && !whiteKingMoved && board[7][5] == 0 && board[7][6] == 0 && board[7][7] == ROOK) {
+            moves.insert({ 7, 6 });
+        }
+        if (isWhite && !isWhiteCheck && !whiteKingMoved && board[7][3] == 0 && board[7][2] == 0 && board[7][1] == 0 && board[7][0] == ROOK) {
+            moves.insert({ 7, 2 });
+        }
+        if (!isWhite && !isBlackCheck && !blackKingMoved && board[0][5] == 0 && board[0][6] == 0 && board[0][7] == -ROOK) {
+            moves.insert({ 0, 6 });
+        }
+        if (!isWhite && !isBlackCheck && !blackKingMoved && board[0][3] == 0 && board[0][2] == 0 && board[0][1] == 0 && board[0][0] == -ROOK) {
+            moves.insert({ 0, 2 });
+        }
         break;
 
     }
@@ -529,6 +551,19 @@ void findLegalMoves(std::pair<int, int> selected, std::unordered_set<std::pair<i
         else if (isKing && !isWhite)
             blackKingPos= originalKingPos;
     }
+    if (isKing) {
+        if (!whiteKingMoved && isWhite && moves.find({ 7, 5 }) == moves.end())
+            moves.erase({ 7, 6 });
+        if (!whiteKingMoved && isWhite && moves.find({ 7, 3 }) == moves.end() ) {
+            moves.erase({ 7, 2 });
+        }
+        if (!blackKingMoved && !isWhite && moves.find({ 0, 5 }) == moves.end()) {
+            moves.erase({ 0, 6 });
+        }
+        if (!blackKingMoved && !isWhite && moves.find({ 0, 3 }) == moves.end()) {
+            moves.erase({ 0, 2 });
+        }
+    }
 }
 void findCheck() {
     std::unordered_set<std::pair<int, int>, pair_hash> allLegalWhiteMoves;
@@ -549,7 +584,7 @@ void findCheck() {
         }
     }
     if (allLegalBlackMoves.find(whiteKingPos) != allLegalBlackMoves.end()) {
-        drawWhiteCheck = true;
+        isWhiteCheck = true;
         std::cout << "Check" << std::endl;
         // checkmate
         if (allLegalWhiteMoves.empty()) {
@@ -559,11 +594,11 @@ void findCheck() {
         }
     }
     else {
-        drawWhiteCheck = false;
+        isWhiteCheck = false;
     }
     if (allLegalWhiteMoves.find(blackKingPos) != allLegalWhiteMoves.end()) {
         std::cout << "Check" << std::endl;
-        drawBlackCheck = true;
+        isBlackCheck = true;
         
         // checkmate
         if (allLegalBlackMoves.empty()) {
@@ -573,7 +608,7 @@ void findCheck() {
         }
     }
     else {
-        drawBlackCheck = false;
+        isBlackCheck = false;
     }
     if (allLegalBlackMoves.empty() || allLegalWhiteMoves.empty()) {
         std::cout << "Stalemate" << std::endl;
@@ -582,14 +617,14 @@ void findCheck() {
     }
 }
 void drawCheck(RenderWindow& window) {
-    if (drawBlackCheck) {
+    if (isBlackCheck) {
         auto colour = Color(235, 94, 85, 200);
         sf::RectangleShape rectangle(Vector2f(size, size));
         rectangle.setFillColor(colour);
         rectangle.setPosition(blackKingPos.second * size, blackKingPos.first * size);
         window.draw(rectangle);
     }
-    if (drawWhiteCheck) {
+    if (isWhiteCheck) {
         auto colour = Color(235, 94, 85, 200);
         sf::RectangleShape rectangle(Vector2f(size, size));
         rectangle.setFillColor(colour);
