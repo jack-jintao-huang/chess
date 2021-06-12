@@ -21,7 +21,7 @@ using namespace sf;
 #define PAWN   6
 
 // True for on, false for off
-#define RANDOMMOVE_ON false
+#define RANDOMMOVE_ON true
 // chess piece size
 int size = 60;
 std::string position = "";
