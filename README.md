@@ -5,10 +5,11 @@ As a avid chess player, it always facinated me how computers handle chess's comp
 
 ## Screenshots
 
-![Game start](images/screenshot1.png)
-![Queen's available moves](images/screenshot2.png)
-![Check](images/screenshot3.png)
-![Another Check example](images/screenshot4.png)
+![Game start](images/screenshot1.png) Game Start
+![Queen's available moves](images/screenshot2.png) Shows Queen's moves
+![Check](images/screenshot3.png) Check
+![Another Check example](images/screenshot4.png) Another Check
+
 
 
 ## Libraries used
