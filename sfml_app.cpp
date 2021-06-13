@@ -641,7 +641,10 @@ void drawCheck(RenderWindow& window) {
 }
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(480, 480), "Chess");
+    sf::RenderWindow window(sf::VideoMode(480, 480), "Jintao Huang's Chess Game");
+    sf::Image icon;
+    icon.loadFromFile("images/icon.png");
+    window.setIcon(50, 50, icon.getPixelsPtr());
     Texture pieces;
     pieces.loadFromFile("images/pieces.png");
     for (int i = 0; i < 32; i++) f[i].setTexture(pieces);
