@@ -5,7 +5,11 @@ As a avid chess player, it always facinated me how computers handle chess's comp
 
 ## Screenshots
 
-TBA
+![Game start](images/screenshot1.png)
+![Queen's available moves](images/screenshot2.png)
+![Check](images/screenshot3.png)
+![Another Check example](images/screenshot4.png)
+
 
 ## Libraries used
 
