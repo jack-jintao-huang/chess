@@ -21,7 +21,7 @@ using namespace sf;
 #define PAWN   6
 
 // True for on, false for off
-#define RANDOMMOVE_ON true
+#define RANDOMMOVE_ON false
 // chess piece size
 int size = 60;
 std::string position = "";
@@ -617,11 +617,11 @@ void findCheck() {
     else {
         isBlackCheck = false;
     }
-    if (allLegalBlackMoves.empty() || allLegalWhiteMoves.empty()) {
+   /* if (allLegalBlackMoves.empty() || allLegalWhiteMoves.empty()) {
         std::cout << "Stalemate" << std::endl;
         isGameOver = true;
         return;
-    }
+    } */
 }
 void drawCheck(RenderWindow& window) {
     if (isBlackCheck) {
@@ -718,7 +718,7 @@ int main()
                             f[n].setPosition(selectedPiece.second * size, selectedPiece.first * size);
                         }
                         
-                    if (oldBoardPos != newBoardPos) {
+                    if (oldBoardPos != newBoardPos && availableMoves.find(newBoardPos) != availableMoves.end()) {
                         availableMoves.clear();
                         isWhiteTurn = !isWhiteTurn;
                     }
