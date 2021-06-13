@@ -17,11 +17,13 @@ Check
 ![Checkmate](images/screenshot5.png) 
 Checkmate
 
-
-
 ## Libraries used
 
 - [SFML](https://www.sfml-dev.org/index.php)
+
+## How to use
+
+Download the latest version [here](https://drive.google.com/file/d/1PWuYjgrx16Zi-d5LRXG32tMWPiPvAspX/view?usp=sharing). Click and drag to move pieces. Click 'space' for stockfish to make a move
 
 ## Features
 
